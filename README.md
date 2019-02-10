@@ -73,4 +73,16 @@ select coverage from coverage_wise_partition where coveragedata='above2010';
 select coverage from coverage_wise_partition where coveragedata='lessthan2000';
 
 
+=========================================================================
+4. Provide the links based on if "Access Option" is "Bulk download" and then only show the "Bulk Download" download urls
+=========================================================================
+create view filter_bulk_download_urls as select explode(split(bulk_download,'\;')) as bulk_download_urls from worldbank where instr(access_option,'Bulk download') > 0;
 
+select regexp_extract(bulk_download_urls, '([^=]*)=(.*)', 2) AS url from filter_bulk_download_urls;
+select coverage from worldbank;
+select name, coverage from worldbank where length(coverage) > 0;
+select name, split(coverage ,'-') from worldbank where length(coverage) > 0;
+
+create table worldbankcoverage like worldbank;
+ALTER TABLE worldbankcoverage ADD COLUMNS (coveragedata string);
+insert overwrite table worldbankcoverage select * , coverage from worldbank;
